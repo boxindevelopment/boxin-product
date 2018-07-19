@@ -1,27 +1,68 @@
 <?php
 
 namespace App\Http\Controllers\API;
+
 use App\Http\Controllers\Controller;
-use Illuminate\Http\Request;
 use App\Entities\Warehouse;
 use App\Entities\CityWarehouse;
 use App\Entities\AreaWarehouse;
+use App\Http\Resources\CityWarehouseResource;
+use App\Http\Resources\WarehouseResource;
 
 class WarehouseController extends Controller
 {
     public function index()
     {
-        return Warehouse::with('areaWarehouse')->get();
+        $warehouses = Warehouse::all();
+        if(count($warehouses) != 0) {
+            $data = WarehouseResource::collection($warehouses);
+
+            return response()->json([
+                'status' => true,
+                'data' => $data
+            ]);
+        }
+
+        return response()->json([
+            'status' => false,
+            'message' => 'Data not found'
+        ]);
     }
  
     public function show($id)
     {
-        return Warehouse::find($id);
+        $warehouse = Warehouse::findOrFail($id);
+        if(count($warehouse) != 0) {
+            $data = new WarehouseResource($warehouse);
+
+            return response()->json([
+                'status' => true,
+                'data' => $data
+            ]);
+        }
+
+        return response()->json([
+            'status' => false,
+            'message' => 'Data not found'
+        ]);
     }
 
     public function cityWarehouse()
     {
-        return CityWarehouse::all();
+        $cities = CityWarehouse::all();
+        if(count($cities) != 0) {
+            $data = CityWarehouseResource::collection($cities);
+
+            return response()->json([
+                'status' => true,
+                'data' => $data
+            ]);
+        }
+
+        return response()->json([
+            'status' => false,
+            'message' => 'Data not found'
+        ]);
     }
 
     public function areaBycityWarehouse($city_warehouse_id)
